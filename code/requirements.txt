@@ -1,0 +1,7 @@
+PyYAML
+deepmerge
+flask
+Flask-WTF
+bootstrap-flask
+pymongo
+humanize

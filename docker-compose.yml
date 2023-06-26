@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./tmp/mongo/:/data/db
+  web:
+    build: .
+    depends_on: [mongo]
+    ports:
+      - "8000:5000"
+    volumes:
+      - ./code:/code
+    environment:
+      FLASK_DEBUG: "true"

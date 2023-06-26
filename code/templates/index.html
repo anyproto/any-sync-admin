@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form, render_field, render_form_row %}
+
+{% block content %}
+<h2>any-sync admin</h2>
+<ul>
+  <li><a href="{{ url_for('showLimit') }}">show limit</a></li>
+  <li><a href="{{ url_for('setLimit') }}">set limit</a></li>
+<ul>
+{% endblock %}

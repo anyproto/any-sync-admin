@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form, render_field, render_form_row %}
+{% from 'bootstrap5/utils.html' import render_icon %}
+
+{% block content %}
+  <table id="data" class="table table-striped">
+    <tbody>
+    {% for key,value in result.items() %}
+    <tr>
+      <td>{{ key }} </td>
+      <td>{{ value }} </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
