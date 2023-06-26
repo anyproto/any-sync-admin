@@ -118,9 +118,9 @@ def setFileLimit(userIdentity, limit, reason):
         )
     except Exception as e:
         app.logger.error("failed update file limit mongodb, url='%s', db='%s', collection='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'fileLimit', str(e)))
-        return None
+        return None,"failed update file limit mongodb, url='%s', db='%s', collection='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'fileLimit', str(e))
 
-    return data
+    return data,"succes"
 
 def checkAuth(headers):
     if cfg['auth']['enable']:
@@ -192,12 +192,15 @@ def updateLimit():
         spaceLimitGb = int(spaceLimitGb) * 1024 * 1024 * 1024
         limitInfo = getFileLimit(userIdentity)
         app.logger.debug("userIdentity='%s', spaceLimitGb='%s', reason='%s', data='%s'" % (userIdentity,spaceLimitGb,reason,limitInfo))
-        if limitInfo['limit'] == spaceLimitGb:
+        if limitInfo and limitInfo['limit'] == spaceLimitGb:
             errorInfo = "new limit is equal to the current limit. new limit='%s', limitInfo='%s'" % (spaceLimitGb,limitInfo)
             app.logger.warning(errorInfo)
             return render_template('error.html', errorCode='200', error=errorInfo), 200
-        setFileLimit(userIdentity, spaceLimitGb, reason)
-        result = { "status": "success" }
+        data = setFileLimit(userIdentity, spaceLimitGb, reason)
+        if data[0]:
+            result = { "status": "success" }
+        else:
+            result = { "status": "failed", "error": data[1] }
         return render_template("result.html", result = result)
 
 if __name__ == '__main__':
