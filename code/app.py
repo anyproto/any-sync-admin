@@ -28,10 +28,8 @@ baseCfg = {
     'salt': 'CHANGE_ME',
     'auth': {
         'enable': True,
-        'header': 'X-User',
-        'allow': [
-            'test',
-        ],
+        'header': 'X-Email',
+        'allow': [],
     },
 }
 configFile = os.environ.get('CONFIG_FILE', False)
