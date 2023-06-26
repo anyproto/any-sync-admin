@@ -22,8 +22,7 @@ app = Flask(__name__)
 # config for application {{
 baseCfg = {
     'mongo': {
-        'host': 'mongo',
-        'port': 27017,
+        'url': 'mongodb://mongo:27017/',
         'db': 'coordinator',
     },
     'salt': 'CHANGE_ME',
@@ -56,7 +55,7 @@ app.secret_key = secrets.token_urlsafe(16)
 bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
 
-mongoClient = MongoClient(cfg['mongo']['host'], cfg['mongo']['port'])
+mongoClient = MongoClient(cfg['mongo']['url'])
 mongoDb = mongoClient[cfg['mongo']['db']]
 
 @app.errorhandler(404)
@@ -82,10 +81,10 @@ def getUserInfo(userIdentity):
         try:
             data = collectionSpaces.find_one({"oldIdentity": userIdentity })
         except Exception as e:
-            app.logger.error("failed get user data from mongodb='%s %s %s %s', userIdentity='%s'" % (cfg['mongo']['host'], cfg['mongo']['port'], cfg['mongo']['db'], 'spaces', userIdentity))
+            app.logger.error("failed get user data from mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity))
             return None
     if data == None:
-        app.logger.error("user not found in mongodb='%s %s %s %s', userIdentity='%s'" % (cfg['mongo']['host'], cfg['mongo']['port'], cfg['mongo']['db'], 'spaces', userIdentity))
+        app.logger.error("user not found in mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity))
         return None
     else:
         return data
@@ -96,10 +95,10 @@ def getFileLimit(userIdentity):
     try:
         data = collectionFileLimit.find_one({"_id": userInfo['_id']})
     except Exception as e:
-        app.logger.error("failed get file limit from mongodb='%s %s %s %s', error='%s'" % (cfg['mongo']['host'], cfg['mongo']['port'], cfg['mongo']['db'], 'fileLimit', str(e)))
+        app.logger.error("failed get file limit from mongodb, url='%s', db='%s', collection='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'fileLimit',str(e)))
         return None
     if data == None:
-        app.logger.error("file limit not found in mongodb='%s %s %s %s', _id='%s'" % (cfg['mongo']['host'], cfg['mongo']['port'], cfg['mongo']['db'], 'fileLimit', userInfo['_id']))
+        app.logger.error("file limit not found in mongodb, url='%s', db='%s', collection='%s', _id='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'fileLimit',userInfo['_id']))
         return None
     else:
         return data
@@ -120,7 +119,7 @@ def setFileLimit(userIdentity, limit, reason):
             upsert=True
         )
     except Exception as e:
-        app.logger.error("failed update file limit mongodb='%s %s %s %s', error='%s'" % (cfg['mongo']['host'], cfg['mongo']['port'], cfg['mongo']['db'], 'fileLimit', str(e)))
+        app.logger.error("failed update file limit mongodb, url='%s', db='%s', collection='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'fileLimit', str(e)))
         return None
 
     return data
