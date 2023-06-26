@@ -75,11 +75,14 @@ def getUserInfo(userIdentity):
     collectionSpaces = mongoDb['spaces']
     try:
         data = collectionSpaces.find_one({"identity": userIdentity })
-    except:
+    except Exception as e:
+        app.logger.error("failed get user data from mongodb, url='%s', db='%s', collection='%s', userIdentity='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity,str(e)))
+        return None
+    if data == None:
         try:
             data = collectionSpaces.find_one({"oldIdentity": userIdentity })
         except Exception as e:
-            app.logger.error("failed get user data from mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity))
+            app.logger.error("failed get user data from mongodb, url='%s', db='%s', collection='%s', userIdentity='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity,str(e)))
             return None
     if data == None:
         app.logger.error("user not found in mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity))
@@ -103,6 +106,10 @@ def getFileLimit(userIdentity):
 
 def setFileLimit(userIdentity, limit, reason):
     userInfo = getUserInfo(userIdentity)
+    if userInfo == None:
+        app.logger.error("user not found in mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity))
+        return None,"user not found in mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity)
+
     collectionFileLimit = mongoDb['fileLimit']
     try:
         data = collectionFileLimit.update_one(
