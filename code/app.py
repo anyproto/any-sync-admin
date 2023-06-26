@@ -173,7 +173,7 @@ def showLimitResult():
         return render_template('error.html', errorCode='404', error="user not found"), 404
     result['userIdentity'] = userIdentity
     if 'limit' in result:
-        result['limit'] = humanize.naturalsize(result['limit'])
+        result['limit'] = humanize.naturalsize(value=result['limit'], binary=True)
     if 'updatedTime' in result:
         result['updatedTime'] = datetime.datetime.fromtimestamp(result['updatedTime']).astimezone()
     app.logger.debug("result='%s'" % (result))
