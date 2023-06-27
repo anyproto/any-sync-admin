@@ -170,7 +170,7 @@ def showLimitResult():
                 userIdentity = value
     result = getFileLimit(userIdentity)
     if result == None:
-        return render_template('error.html', errorCode='404', error="user not found"), 404
+        return render_template('error.html', errorCode='404', error="limit not found for userIdentity='%s'" % userIdentity), 404
     result['userIdentity'] = userIdentity
     if 'limit' in result:
         result['limit'] = humanize.naturalsize(value=result['limit'], binary=True)
