@@ -62,36 +62,36 @@ def page_not_found(e):
     return render_template('error.html', errorCode='404', error='404'), 404
 
 class SetLimitForm(FlaskForm):
-    userIdentity = TextAreaField('User identity:', validators=[DataRequired(), Length(1, 99999)])
+    identity = TextAreaField('User identity:', validators=[DataRequired(), Length(1, 99999)])
     spaceLimitGb = TextAreaField('Space limit in Gb:', validators=[DataRequired(), Length(1, 99999)])
     reason = TextAreaField('Reason for change:', validators=[DataRequired(), Length(1, 99999)])
     submit = SubmitField()
 
 class ShowLimitForm(FlaskForm):
-    userIdentity = TextAreaField('User identity:', validators=[DataRequired(), Length(1, 99999)])
+    identity = TextAreaField('User identity:', validators=[DataRequired(), Length(1, 99999)])
     submit = SubmitField()
 
-def getUserInfo(userIdentity):
+def getUserInfo(identity):
     collectionSpaces = mongoDb['spaces']
     try:
-        data = collectionSpaces.find_one({"identity": userIdentity })
+        data = collectionSpaces.find_one({"identity": identity })
     except Exception as e:
-        app.logger.error("failed get user data from mongodb, url='%s', db='%s', collection='%s', userIdentity='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity,str(e)))
+        app.logger.error("failed get user data from mongodb, url='%s', db='%s', collection='%s', identity='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',identity,str(e)))
         return None
     if data == None:
         try:
-            data = collectionSpaces.find_one({"oldIdentity": userIdentity })
+            data = collectionSpaces.find_one({"oldIdentity": identity })
         except Exception as e:
-            app.logger.error("failed get user data from mongodb, url='%s', db='%s', collection='%s', userIdentity='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity,str(e)))
+            app.logger.error("failed get user data from mongodb, url='%s', db='%s', collection='%s', identity='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',identity,str(e)))
             return None
     if data == None:
-        app.logger.error("user not found in mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity))
+        app.logger.error("user not found in mongodb, url='%s', db='%s', collection='%s', identity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',identity))
         return None
     else:
         return data
 
-def getFileLimit(userIdentity):
-    userInfo = getUserInfo(userIdentity)
+def getFileLimit(identity):
+    userInfo = getUserInfo(identity)
     collectionFileLimit = mongoDb['fileLimit']
     try:
         data = collectionFileLimit.find_one({"_id": userInfo['_id']})
@@ -104,11 +104,11 @@ def getFileLimit(userIdentity):
     else:
         return data
 
-def setFileLimit(userIdentity, limit, reason):
-    userInfo = getUserInfo(userIdentity)
+def setFileLimit(identity, limit, reason):
+    userInfo = getUserInfo(identity)
     if userInfo == None:
-        app.logger.error("user not found in mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity))
-        return None,"user not found in mongodb, url='%s', db='%s', collection='%s', userIdentity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',userIdentity)
+        app.logger.error("user not found in mongodb, url='%s', db='%s', collection='%s', identity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',identity))
+        return None,"user not found in mongodb, url='%s', db='%s', collection='%s', identity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',identity)
 
     collectionFileLimit = mongoDb['fileLimit']
     try:
@@ -164,14 +164,14 @@ def showLimitResult():
         return render_template('error.html', errorCode='401', error="user not authorized"), 401
     if request.method == 'POST':
         result = request.form
-        userIdentity = None
+        identity = None
         for key,value in result.items():
-            if key == 'userIdentity':
-                userIdentity = value
-    result = getFileLimit(userIdentity)
+            if key == 'identity':
+                identity = value
+    result = getFileLimit(identity)
     if result == None:
-        return render_template('error.html', errorCode='404', error="limit not found for userIdentity='%s'" % userIdentity), 404
-    result['userIdentity'] = userIdentity
+        return render_template('error.html', errorCode='404', error="limit not found for identity='%s'" % identity), 404
+    result['identity'] = identity
     if 'limit' in result:
         result['limit'] = humanize.naturalsize(value=result['limit'], binary=True)
     if 'updatedTime' in result:
@@ -185,25 +185,25 @@ def updateLimit():
         return render_template('error.html', errorCode='401', error="user not authorized"), 401
     if request.method == 'POST':
         formData = request.form
-        userIdentity = None
+        identity = None
         spaceLimitGb = None
         reason = None
         for key,value in formData.items():
-            if key == 'userIdentity':
-                userIdentity = value
+            if key == 'identity':
+                identity = value
             if key == 'spaceLimitGb':
                 spaceLimitGb = value
             if key == 'reason':
                 reason = value
 
         spaceLimitGb = int(spaceLimitGb) * 1024 * 1024 * 1024
-        limitInfo = getFileLimit(userIdentity)
-        app.logger.debug("userIdentity='%s', spaceLimitGb='%s', reason='%s', data='%s'" % (userIdentity,spaceLimitGb,reason,limitInfo))
+        limitInfo = getFileLimit(identity)
+        app.logger.debug("identity='%s', spaceLimitGb='%s', reason='%s', data='%s'" % (identity,spaceLimitGb,reason,limitInfo))
         if limitInfo and limitInfo['limit'] == spaceLimitGb:
             errorInfo = "new limit is equal to the current limit. new limit='%s', limitInfo='%s'" % (spaceLimitGb,limitInfo)
             app.logger.warning(errorInfo)
             return render_template('error.html', errorCode='200', error=errorInfo), 200
-        data = setFileLimit(userIdentity, spaceLimitGb, reason)
+        data = setFileLimit(identity, spaceLimitGb, reason)
         if data[0]:
             result = { "status": "success" }
         else:
