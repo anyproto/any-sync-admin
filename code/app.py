@@ -16,6 +16,7 @@ from wtforms.fields import *
 import secrets
 import datetime
 import humanize
+import redis
 
 app = Flask(__name__)
 
@@ -55,6 +56,7 @@ csrf = CSRFProtect(app)
 
 mongoClient = MongoClient(cfg['mongo']['url'])
 mongoDb = mongoClient[cfg['mongo']['db']]
+redisClient = redis.cluster.RedisCluster.from_url(cfg['redis']['url'])
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -103,6 +105,11 @@ def getFileLimit(identity):
         return None
     else:
         return data
+
+def getCurrentUsage(identity):
+    userInfo = getUserInfo(identity)
+    redisInfo = redisClient.hget('s:'+userInfo['_id'], 'size').decode()
+    return redisInfo
 
 def setFileLimit(identity, limit, reason):
     userInfo = getUserInfo(identity)
@@ -169,6 +176,8 @@ def showLimitResult():
             if key == 'identity':
                 identity = value
     result = getFileLimit(identity)
+    usage = getCurrentUsage(identity)
+    app.logger.debug("usage='%s'" % usage)
     if result == None:
         return render_template("result.html", result = { "limit not found": "used default" })
     result['identity'] = identity
@@ -176,6 +185,8 @@ def showLimitResult():
         result['limit'] = humanize.naturalsize(value=result['limit'], binary=True)
     if 'updatedTime' in result:
         result['updatedTime'] = datetime.datetime.fromtimestamp(result['updatedTime']).astimezone()
+    if usage:
+        result['usage'] = humanize.naturalsize(value=usage, binary=True)
     app.logger.debug("result='%s'" % (result))
     return render_template("result.html", result = result)
 
