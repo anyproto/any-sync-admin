@@ -221,5 +221,10 @@ def updateLimit():
             result = { "status": "failed", "error": data[1] }
         return render_template("result.html", result = result)
 
+@app.route("/logout")
+def logout():
+    response = redirect("/oauth2/sign_out?rd=" + url_for('index'), 302)
+    return response
+
 if __name__ == '__main__':
     app.run(debug = True)
