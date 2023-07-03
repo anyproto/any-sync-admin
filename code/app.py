@@ -108,7 +108,14 @@ def getFileLimit(identity):
 
 def getCurrentUsage(identity):
     userInfo = getUserInfo(identity)
-    redisInfo = redisClient.hget('s:'+userInfo['_id'], 'size').decode()
+    if userInfo == None:
+        return None
+    try:
+        redisInfo = redisClient.hget('s:'+userInfo['_id'], 'size').decode()
+    except Exception as e:
+        app.logger.error("failed hget from redis, url='%s', identity='%s', _id='%s', error='%s'" % (cfg['redis']['url'],identity,userInfo['_id'],str(e)))
+        return None
+
     return redisInfo
 
 def setFileLimit(identity, limit, reason):
