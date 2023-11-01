@@ -93,15 +93,14 @@ def getUserInfo(identity):
         return data
 
 def getFileLimit(identity):
-    userInfo = getUserInfo(identity)
     collectionFileLimit = mongoDb['fileLimit']
     try:
-        data = collectionFileLimit.find_one({"_id": userInfo['_id']})
+        data = collectionFileLimit.find_one({"_id": identity})
     except Exception as e:
         app.logger.error("failed get file limit from mongodb, url='%s', db='%s', collection='%s', error='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'fileLimit',str(e)))
         return None
     if data == None:
-        app.logger.error("file limit not found in mongodb, url='%s', db='%s', collection='%s', _id='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'fileLimit',userInfo['_id']))
+        app.logger.error("file limit not found in mongodb, url='%s', db='%s', collection='%s', _id='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'fileLimit',identity))
         return None
     else:
         return data
@@ -119,15 +118,10 @@ def getCurrentUsage(identity):
     return redisInfo
 
 def setFileLimit(identity, limit, reason):
-    userInfo = getUserInfo(identity)
-    if userInfo == None:
-        app.logger.error("user not found in mongodb, url='%s', db='%s', collection='%s', identity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',identity))
-        return None,"user not found in mongodb, url='%s', db='%s', collection='%s', identity='%s'" % (cfg['mongo']['url'],cfg['mongo']['db'],'spaces',identity)
-
     collectionFileLimit = mongoDb['fileLimit']
     try:
         data = collectionFileLimit.update_one(
-            { '_id': userInfo['_id'] },
+            { '_id': identity },
             { '$set':
                 {
                     "limit": limit,
