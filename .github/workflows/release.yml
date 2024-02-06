@@ -111,6 +111,20 @@ jobs:
           ls -al ./
           find ./ -type f
 
+      - name: create package rpm
+        if: matrix.os == 'linux'
+        uses: bpicode/github-action-fpm@master
+        with:
+          fpm_opts:
+            --name ${{ github.event.repository.name }}
+            --version 0.0.1
+            --architecture ${{ matrix.rpm_arch }}
+            --exclude '*/.gitignore'
+            --exclude '*/.git'
+            --input-type dir
+            --output-type rpm
+          fpm_args: ./build
+
 #      # create release and upload assets
 #      - name: Release
 #        uses: softprops/action-gh-release@v1
