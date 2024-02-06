@@ -104,8 +104,9 @@ jobs:
             --exclude '*/.gitignore'
             --exclude '*/.git'
             --input-type dir
+            --chdir ./build
             --output-type ${{ steps.release_info.outputs.FPM_OUTPUT_TYPE }}
-          fpm_args: ./build
+          fpm_args: ./
       # }}
 
       - name: debug ls
