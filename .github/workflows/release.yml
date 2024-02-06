@@ -113,8 +113,8 @@ jobs:
       - name: debug find
         run: find ./ -type f
 
-#      # create release and upload assets
-#      - name: Release
-#        uses: softprops/action-gh-release@v1
-#        with:
-#          files: ${{ github.workspace }}/${{ steps.release_info.outputs.FPM_ARCHITECTURE }}/*
+      # create release and upload assets
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: '*.${{ steps.release_info.outputs.FPM_OUTPUT_TYPE }}'
