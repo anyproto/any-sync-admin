@@ -101,6 +101,7 @@ jobs:
         run: |
           docker run --platform ${{ matrix.arch }} --rm --volume ${{ github.workspace }}:/workspace --workdir /workspace ${{ matrix.image_name }} /bin/bash -c \
             "
+            yum update -y && yum install -y python3 perl rsync
             ./build.sh
             "
       # }}
