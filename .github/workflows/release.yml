@@ -2,8 +2,8 @@ name: release
 
 on:
   push:
-#    tags:
-#      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 env:
   REGISTRY: docker.io
@@ -26,8 +26,10 @@ jobs:
         include:
           - arch: amd64
             rpm_arch: x86_64
+            deb_arch: amd64
 #          - arch: arm64
 #            rpm_arch: aarch64
+#            deb_arch: arm64
 
     steps:
       - name: Checkout Github code
@@ -43,57 +45,41 @@ jobs:
         with:
           install: true
 
-#      - name: get release version
-#        id: release-version
-#        run: |
-#          echo "$GITHUB_REF_NAME" | sed 's|^[a-zA-Z]\+||; s|-[0-9]\+$||; s|^|RELEASE_VERSION=|' >> $GITHUB_OUTPUT
-#          echo "$GITHUB_REF_NAME" | sed 's/^.*-\([0-9]\+\)$/BUILD_NUMBER=\1/' >> $GITHUB_OUTPUT
-#
-#      - name: get os_release info
-#        id: release_info
-#        run: |
-#          case ${{ matrix.image_name }} in
-#            centos:7)
-#              OS_RELEASE_ID="centos7"
-#              OS_VERSION="el7"
-#              FPM_OPTS="--rpm-dist $OS_RELEASE_ID"
-#              FPM_ARCHITECTURE="${{ matrix.rpm_arch }}"
-#              FPM_ASSET_NAME="${{ github.event.repository.name }}-${{ steps.release-version.outputs.RELEASE_VERSION }}-${{ steps.release-version.outputs.BUILD_NUMBER }}.${OS_RELEASE_ID}.${FPM_ARCHITECTURE}.rpm"
-#              PACKAGE_TYPE=rpm
-#            ;;
-#            almalinux:9)
-#              OS_RELEASE_ID="almalinux9"
-#              OS_VERSION="el9"
-#              FPM_OPTS="--rpm-dist $OS_RELEASE_ID"
-#              FPM_ARCHITECTURE="${{ matrix.rpm_arch }}"
-#              FPM_ASSET_NAME="${{ github.event.repository.name }}-${{ steps.release-version.outputs.RELEASE_VERSION }}-${{ steps.release-version.outputs.BUILD_NUMBER }}.${OS_RELEASE_ID}.${FPM_ARCHITECTURE}.rpm"
-#              PACKAGE_TYPE=rpm
-#            ;;
-#            # not supported
-#            #ubuntu:22.04)
-#            #  OS_RELEASE_ID="ubuntu22"
-#            #  FPM_OPTS="--deb-dist $OS_RELEASE_ID --iteration $OS_RELEASE_ID"
-#            #  FPM_ARCHITECTURE="${{ matrix.arch }}"
-#            #  FPM_ASSET_NAME="${{ github.event.repository.name }}_${{ steps.release-version.outputs.RELEASE_VERSION }}-${OS_RELEASE_ID}_${FPM_ARCHITECTURE}.deb"
-#            #  PACKAGE_TYPE=deb
-#            #  INSTALL_REQUIRED_PACKAGES_CMD="apt-get update && apt install -y wget make gcc tar gzip debianutils pkg-config"
-#            #;;
-#            *)
-#              echo "ERROR: unsupported matrix.image_name=${{ matrix.image_name }}" 1>&2
-#              exit 1
-#            ;;
-#          esac
-#          TGZ_ASSET_NAME="${{ github.event.repository.name }}-${{ steps.release-version.outputs.RELEASE_VERSION }}.${{ matrix.os }}-${OS_RELEASE_ID}-${{ matrix.arch }}.tgz"
-#          echo "OS_RELEASE_ID=$OS_RELEASE_ID" >> $GITHUB_OUTPUT
-#          echo "OS_VERSION=$OS_VERSION" >> $GITHUB_OUTPUT
-#          echo "FPM_OPTS=$FPM_OPTS" >> $GITHUB_OUTPUT
-#          echo "FPM_ARCHITECTURE=$FPM_ARCHITECTURE" >> $GITHUB_OUTPUT
-#          echo "FPM_ASSET_NAME=$FPM_ASSET_NAME" >> $GITHUB_OUTPUT
-#          echo "PACKAGE_TYPE=$PACKAGE_TYPE" >> $GITHUB_OUTPUT
-#          echo "TGZ_ASSET_NAME=$TGZ_ASSET_NAME" >> $GITHUB_OUTPUT
-#
-#      - name: debug show GITHUB_OUTPUT
-#        run: echo ${{ steps.release_info.outputs }}
+      - name: get release version
+        id: release-version
+        run: |
+          echo "$GITHUB_REF_NAME" | sed 's|^[a-zA-Z]\+||; s|-[0-9]\+$||; s|^|RELEASE_VERSION=|' >> $GITHUB_OUTPUT
+
+      - name: get os_release info
+        id: release_info
+        run: |
+          case ${{ matrix.image_name }} in
+            centos:7)
+              INSTALL_REQUIRED_PACKAGES_CMD="yum update -y && yum install -y python3 perl rsync"
+              FPM_OUTPUT_TYPE=rpm
+              FPM_ARCH=${{ matrix.rpm_arch }}
+            ;;
+            almalinux:9)
+              INSTALL_REQUIRED_PACKAGES_CMD="yum update -y && yum install -y python3 perl rsync"
+              FPM_OUTPUT_TYPE=rpm
+              FPM_ARCH=${{ matrix.rpm_arch }}
+            ;;
+            ubuntu:22.04)
+              INSTALL_REQUIRED_PACKAGES_CMD="apt-get update && apt install -y python3 perl rsync"
+              FPM_OUTPUT_TYPE=deb
+              FPM_ARCH=${{ matrix.deb_arch }}
+            ;;
+            *)
+              echo "ERROR: unsupported matrix.image_name=${{ matrix.image_name }}" 1>&2
+              exit 1
+            ;;
+          esac
+          echo "INSTALL_REQUIRED_PACKAGES_CMD=$INSTALL_REQUIRED_PACKAGES_CMD" >> $GITHUB_OUTPUT
+          echo "FPM_OUTPUT_TYPE=$FPM_OUTPUT_TYPE" >> $GITHUB_OUTPUT
+          echo "FPM_ARCH=$FPM_ARCH" >> $GITHUB_OUTPUT
+
+      - name: debug show GITHUB_OUTPUT
+        run: echo ${{ steps.release_info.outputs }}
 
       # build {{
       - name: build on ${{ matrix.image_name }}
@@ -101,29 +87,31 @@ jobs:
         run: |
           docker run --platform ${{ matrix.arch }} --rm --volume ${{ github.workspace }}:/workspace --workdir /workspace ${{ matrix.image_name }} /bin/bash -c \
             "
-            yum update -y && yum install -y python3 perl rsync
+            ${{ steps.release_info.outputs.INSTALL_REQUIRED_PACKAGES_CMD }}
             ./build.sh
             "
       # }}
 
-      - name: debug
-        run: |
-          ls -al ./
-          find ./ -type f
-
-      - name: create package rpm
+      # create asset {{
+      - name: create package ${{ steps.release_info.outputs.FPM_ARCH }}
         if: matrix.os == 'linux'
         uses: bpicode/github-action-fpm@master
         with:
           fpm_opts:
             --name ${{ github.event.repository.name }}
-            --version 0.0.1
-            --architecture ${{ matrix.rpm_arch }}
+            --version ${{ steps.release-version.outputs.RELEASE_VERSION }}
+            --architecture ${{ steps.release_info.outputs.FPM_ARCH }}
             --exclude '*/.gitignore'
             --exclude '*/.git'
             --input-type dir
-            --output-type rpm
+            --output-type ${{ steps.release_info.outputs.FPM_OUTPUT_TYPE }}
           fpm_args: ./build
+      # }}
+
+      - name: debug ls
+        run: ls -al ./
+      - name: debug find
+        run: find ./ -type f
 
 #      # create release and upload assets
 #      - name: Release
