@@ -140,14 +140,10 @@ jobs:
       #  run: find ./ -type f
 
       # upload-release-asset {{
-      - name: list asset files
-        id: list_files
-        run: |
-          echo "FILES=$(ls *.${{ steps.release_info.outputs.FPM_OUTPUT_TYPE }})" >> GITHUB_OUTPUT
       - name: Upload Release Asset
         run: |
-          UPLOAD_URL=$(echo "${{ needs.create_release.outputs.upload_url }}" | sed 's|{?name,label}||' )
-          FILES=${{ steps.list_files.outputs.FILES }}
+          UPLOAD_URL=$( echo "${{ needs.create_release.outputs.upload_url }}" | sed 's|{?name,label}||' )
+          FILES=$( ls ./*.${{ steps.release_info.outputs.FPM_OUTPUT_TYPE }} )
           echo "UPLOAD_URL=$UPLOAD_URL"
           echo "FILES=$FILES"
           for FILE in $FILES; do
