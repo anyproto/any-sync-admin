@@ -81,6 +81,7 @@ jobs:
           echo "INSTALL_REQUIRED_PACKAGES_CMD=$INSTALL_REQUIRED_PACKAGES_CMD" >> $GITHUB_OUTPUT
           echo "FPM_OUTPUT_TYPE=$FPM_OUTPUT_TYPE" >> $GITHUB_OUTPUT
           echo "FPM_ARCH=$FPM_ARCH" >> $GITHUB_OUTPUT
+          echo "FPM_OPTIONS=$FPM_OPTIONS" >> $GITHUB_OUTPUT
 
       - name: debug show GITHUB_OUTPUT
         run: echo ${{ steps.release_info.outputs }}
