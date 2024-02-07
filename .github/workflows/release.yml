@@ -140,21 +140,26 @@ jobs:
       #  run: find ./ -type f
 
       # upload-release-asset {{
+      - name: install jq
+        run: apt-get update && apt-get install -y jq
       - name: list asset files
         id: list_files
         run: |
           echo "::set-output name=files::$(ls *.${{ steps.release_info.outputs.FPM_OUTPUT_TYPE }})"
       - name: Upload Release Asset
         run: |
+          UPLOAD_URL=$(echo ${{ needs.create_release.outputs.upload_url }} | jq -r .upload_url | sed 's/{?name,label}//')
           FILES=${{ steps.list_files.outputs.files }}
+          echo "UPLOAD_URL=$UPLOAD_URL"
+          echo "FILES=$FILES"
           for FILE in $FILES; do
             echo "uploading $FILE"
             curl \
               -X POST \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Content-Type: application/octet-stream" \
-              --data-binary @$FILE \
-              ${{ needs.create_release.outputs.upload_url }}?name=$(basename $FILE)
+              --data-binary @${FILE} \
+              "${UPLOAD_URL}?name=$(basename $FILE)"
           done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
