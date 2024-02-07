@@ -8,11 +8,30 @@ on:
 env:
   REGISTRY: docker.io
 
+permissions: write-all
+
 jobs:
+  create_release:
+    name: create release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          # for triggering workflow "push-docker-image-release" - https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow
+          GITHUB_TOKEN: ${{ secrets.ANYTYPE_PAT }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: true
   build:
     name: build release
     runs-on: ubuntu-latest
-    permissions: write-all
+    needs: create_release
     strategy:
       matrix:
         arch:
@@ -120,8 +139,23 @@ jobs:
       #- name: debug find
       #  run: find ./ -type f
 
-      # create release and upload assets
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: '*.${{ steps.release_info.outputs.FPM_OUTPUT_TYPE }}'
+      # upload-release-asset {{
+      - name: list asset files
+        id: list_files
+        run: |
+          echo "::set-output name=files::$(ls *.${{ steps.release_info.outputs.FPM_OUTPUT_TYPE }})"
+      - name: Upload Release Asset
+        run: |
+          FILES=${{ steps.list_files.outputs.files }}
+          for FILE in $FILES; do
+            echo "uploading $FILE"
+            curl \
+              -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @$FILE \
+              ${{ needs.create_release.outputs.upload_url }}?name=$(basename $FILE)
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # }}
