@@ -17,19 +17,20 @@ jobs:
       matrix:
         arch:
           - amd64
-#          - arm64
+          - arm64
         os:
           - linux
         image_name:
           - centos:7
-#          - almalinux:9
+          - almalinux:9
+          - ubuntu:22.04
         include:
           - arch: amd64
             rpm_arch: x86_64
             deb_arch: amd64
-#          - arch: arm64
-#            rpm_arch: aarch64
-#            deb_arch: arm64
+          - arch: arm64
+            rpm_arch: aarch64
+            deb_arch: arm64
 
     steps:
       - name: Checkout Github code
@@ -111,8 +112,8 @@ jobs:
 
       - name: debug ls
         run: ls -al ./
-      - name: debug find
-        run: find ./ -type f
+      #- name: debug find
+      #  run: find ./ -type f
 
       # create release and upload assets
       - name: Release
