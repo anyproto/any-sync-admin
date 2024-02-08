@@ -2,7 +2,7 @@
 web admin for edit
 
 > [!WARNING]
-> "show limit" may be work not correctly
+> "Show limit" may not be working correctly.
 
 ## Contribution
 Thank you for your desire to develop Anytype together!
