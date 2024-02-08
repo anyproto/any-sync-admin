@@ -56,7 +56,12 @@ csrf = CSRFProtect(app)
 
 mongoClient = MongoClient(cfg['mongo']['url'])
 mongoDb = mongoClient[cfg['mongo']['db']]
-redisClient = redis.cluster.RedisCluster.from_url(cfg['redis']['url'])
+
+try:
+    redisClient = redis.cluster.RedisCluster.from_url(cfg['redis']['url'])
+except Exception as e:
+    app.logger.warning(f"failed connect to redis in cluster mode, retry in single mode, error={str(e)}")
+    redisClient = redis.Redis(host=cfg['redis']['host'], port=cfg['redis']['port'])
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -4,6 +4,12 @@ web admin for edit
 > [!WARNING]
 > "Show limit" may not be working correctly.
 
+## local development
+enable mongo and redis service in docker-compose
+```
+ln -s docker-compose-dev.yml docker-compose.override.yml
+```
+
 ## Contribution
 Thank you for your desire to develop Anytype together!
 
