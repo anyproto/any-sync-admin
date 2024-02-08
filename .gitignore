@@ -3,5 +3,5 @@ __pycache__/
 *$py.class
 tmp/
 build/
-config.yml
+code/config.yml
 docker-compose.override.yml

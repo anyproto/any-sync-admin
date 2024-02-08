@@ -8,6 +8,7 @@ web admin for edit
 enable mongo and redis service in docker-compose
 ```
 ln -s docker-compose-dev.yml docker-compose.override.yml
+unlink code/config.yml; ln -s example/dev.yml code/config.yml
 ```
 
 ## Contribution
