@@ -11,4 +11,4 @@ jobs:
     with:
       release: ${{ github.event.release.tag_name }}
       dockerfile-image: ubuntu:22.04
-      dockerfile-run: apt-get install python3
+      dockerfile-run: apt-get install -y python3
