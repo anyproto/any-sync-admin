@@ -1,10 +1,11 @@
 #!/bin/bash
+set -e
 
 # for building rpm and deb packages via fpm
 CURRENT_DIR=$(pwd)
 export LANG=en_US.UTF-8
 #export VIRTUAL_ENV=${CURRENT_DIR}/build/opt/venv/any-sync-admin
-export PATH=${VIRTUAL_ENV}/bin:${PATH}
+#export PATH=${VIRTUAL_ENV}/bin:${PATH}
 
 install -d \
     build/ \
