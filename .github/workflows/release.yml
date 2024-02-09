@@ -75,19 +75,19 @@ jobs:
         run: |
           case ${{ matrix.image_name }} in
             centos:7)
-              INSTALL_REQUIRED_PACKAGES_CMD="yum update -y && yum install -y python3 perl rsync"
+              INSTALL_REQUIRED_PACKAGES_CMD="yum update -y && yum install -y python3 perl rsync && yum groupinstall -y 'Development Tools'"
               FPM_OUTPUT_TYPE=rpm
               FPM_ARCH=${{ matrix.rpm_arch }}
               FPM_OPTIONS="--rpm-dist el7"
             ;;
             almalinux:9)
-              INSTALL_REQUIRED_PACKAGES_CMD="yum update -y && yum install -y python3 perl rsync"
+              INSTALL_REQUIRED_PACKAGES_CMD="yum update -y && yum install -y python3 perl rsync && yum groupinstall -y 'Development Tools'"
               FPM_OUTPUT_TYPE=rpm
               FPM_ARCH=${{ matrix.rpm_arch }}
               FPM_OPTIONS="--rpm-dist el9"
             ;;
             ubuntu:22.04)
-              INSTALL_REQUIRED_PACKAGES_CMD="apt-get update && apt install -y python3 perl rsync python3-venv"
+              INSTALL_REQUIRED_PACKAGES_CMD="apt-get update && apt install -y python3 perl rsync python3-venv build-essential"
               FPM_OUTPUT_TYPE=deb
               FPM_ARCH=${{ matrix.deb_arch }}
               FPM_OPTIONS=""
