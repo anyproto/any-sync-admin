@@ -87,7 +87,7 @@ jobs:
               FPM_OPTIONS="--rpm-dist el9"
             ;;
             ubuntu:22.04)
-              INSTALL_REQUIRED_PACKAGES_CMD="apt-get update && apt install -y python3 perl rsync"
+              INSTALL_REQUIRED_PACKAGES_CMD="apt-get update && apt install -y python3 perl rsync python3-venv"
               FPM_OUTPUT_TYPE=deb
               FPM_ARCH=${{ matrix.deb_arch }}
               FPM_OPTIONS=""
