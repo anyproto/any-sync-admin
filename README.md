@@ -11,6 +11,18 @@ ln -F -s docker-compose-dev.yml docker-compose.yml
 ln -F -s docker-compose-dependences.yml docker-compose.override.yml
 ```
 
+## run from ghcr.io image
+```
+ln -F -s docker-compose-ghcr.yml docker-compose.yml
+ln -F -s docker-compose-dependences.yml docker-compose.override.yml
+```
+
+## make custom config
+```
+cp example/config.yml code/config.yml
+# edit code/config.yml
+```
+
 ## Contribution
 Thank you for your desire to develop Anytype together!
 

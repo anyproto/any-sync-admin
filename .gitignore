@@ -5,3 +5,4 @@ tmp/
 build/
 code/config.yml
 docker-compose.override.yml
+docker-compose.yml
