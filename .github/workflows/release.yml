@@ -76,7 +76,7 @@ jobs:
           case ${{ matrix.image_name }} in
             centos:7)
               INSTALL_REQUIRED_PACKAGES_CMD="yum update -y && yum install -y python3 python3-devel perl rsync && yum groupinstall -y 'Development Tools'"
-              RUN_COMMAND="sed -i 's|Flask==.*|Flask=2.0.3|' code/requirements.txt"
+              RUN_COMMAND="sed -i 's|Flask==.*|Flask==2.0.3|' code/requirements.txt"
               FPM_OUTPUT_TYPE=rpm
               FPM_ARCH=${{ matrix.rpm_arch }}
               FPM_OPTIONS="--rpm-dist el7"
