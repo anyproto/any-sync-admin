@@ -7,8 +7,8 @@ web admin for edit
 ## local development
 enable mongo and redis service in docker-compose
 ```
-ln -s docker-compose-dev.yml docker-compose.override.yml
-rm -f code/config.yml && cp example/dev.yml code/config.yml
+ln -F -s docker-compose-dev.yml docker-compose.yml
+ln -F -s docker-compose-dependences.yml docker-compose.override.yml
 ```
 
 ## Contribution

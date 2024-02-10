@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  web:
+    image: "ghcr.io/anyproto/any-sync-admin:${ANY_SYNC_ADMIN_VERSION}"
+    tty: true
+    ports:
+      - "8000:5000"
+    environment:
+      FLASK_DEBUG: "true"
+    command: /opt/venv/any-sync-admin/bin/uwsgi --master --http 0.0.0.0:5000 --uid www-data --chdir /opt/venv/any-sync-admin/web --module wsgi:app

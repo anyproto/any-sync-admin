@@ -28,9 +28,13 @@ baseCfg = {
     },
     'salt': 'CHANGE_ME',
     'auth': {
-        'enable': True,
+        'enable': False,
         'header': 'X-Email',
         'allow': [],
+    },
+    'redis': {
+        'host': 'redis',
+        'port': 6379,
     },
 }
 configFile = os.environ.get('CONFIG_FILE', False)

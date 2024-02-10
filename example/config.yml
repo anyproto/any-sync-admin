@@ -6,11 +6,10 @@ auth:
 mongo:
   url: mongodb://mongo:27017
 redis:
-  # for single redis instance {{
+  # for redis cluster !!! cluster config is priority !!!
+  url: redis://redis1:6379?dial_timeout=3&read_timeout=6s&addr=redis1:6380&addr=redis3:6379&addr=redis3:6380&addr=redis2:6379&addr=redis2:6380
+  # for single redis instance
   host: redis
   port: 6379
-  # }}
-  # for redis cluster
-  #url: redis://redis1:6379?dial_timeout=3&read_timeout=6s&addr=redis1:6380&addr=redis3:6379&addr=redis3:6380&addr=redis2:6379&addr=redis2:6380
 salt: CHANGE_ME
 urlRoot: False

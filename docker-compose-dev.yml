@@ -1,26 +1,10 @@
 version: "3.9"
 services:
-  mongo:
-    image: mongo
-    ports:
-      - 27017:27017
-    volumes:
-      - ./tmp/mongo/:/data/db
-  redis:
-    container_name: redis
-    image: "redis/redis-stack-server:7.2.0-v6"
-    restart: always
-    command: redis-server --dir /data/ --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction --protected-mode no --loadmodule /opt/redis-stack/lib/redisbloom.so
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./tmp/redis/:/data/
-    healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-      interval: 10s
-      timeout: 30s
-      retries: 3
   web:
-    depends_on:
-      - mongo
-      - redis
+    build: .
+    ports:
+      - "8000:5000"
+    volumes:
+      - ./code:/code
+    environment:
+      FLASK_DEBUG: "true"
