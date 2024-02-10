@@ -40,8 +40,8 @@ jobs:
         os:
           - linux
         image_name:
-          #- centos:7
-          #- almalinux:9
+          - centos:7
+          - almalinux:9
           - ubuntu:22.04
         include:
           - arch: amd64
