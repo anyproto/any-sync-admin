@@ -5,6 +5,7 @@ services:
     ports:
       - "8000:5000"
     volumes:
+      - ./etc:/etc/any-sync-admin
       - ./code:/code
     environment:
       FLASK_DEBUG: "true"

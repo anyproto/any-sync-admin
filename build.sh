@@ -17,7 +17,7 @@ pip install --upgrade pip
 pip install --requirement ./code/requirements.txt
 
 # config file
-rsync -avP example/config.yml build/etc/any-sync-admin/
+rsync -avP example/config.yml build/etc/any-sync-admin/example.yml
 
 # project files
 rsync -avP \
