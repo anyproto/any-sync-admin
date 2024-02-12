@@ -6,10 +6,10 @@ name: push-docker-image-release
 
 jobs:
   push-docker-image-release:
-    uses: anyproto/any-sync-node/.github/workflows/push-docker-image-reusable.yml@editWorkflowPush-docker-image-reusable
+    uses: anyproto/any-sync-node/.github/workflows/push-docker-image-reusable.yml@main
     secrets: inherit
     with:
       release: ${{ github.event.release.tag_name }}
       dockerfile-image: ubuntu:22.04
       dockerfile-run: apt-get update && apt-get install -y python3 libpython3-dev
-      dockerfile-cmd: /opt/venv/any-sync-admin/bin/uwsgi --master --http 0.0.0.0:5000 --uid www-data --chdir /opt/venv/any-sync-admin/web --env CONFIG_FILE=${CONFIG_FILE} --module wsgi:app
+      dockerfile-cmd: /opt/venv/any-sync-admin/bin/uwsgi --master --http 0.0.0.0:5000 --uid www-data --chdir /opt/venv/any-sync-admin/web --env CONFIG_FILE=/etc/any-sync-admin/config.yml --module wsgi:app
