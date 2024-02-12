@@ -19,8 +19,8 @@ ln -F -s docker-compose-dependences.yml docker-compose.override.yml
 
 ## make custom config
 ```
-cp example/config.yml code/config.yml
-# edit code/config.yml
+cp example/config.yml etc/config.yml
+# edit etc/config.yml
 ```
 
 ## Contribution
