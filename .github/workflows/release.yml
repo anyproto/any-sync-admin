@@ -119,7 +119,7 @@ jobs:
       # create asset {{
       - name: create package ${{ steps.release_info.outputs.FPM_ARCH }}
         if: matrix.os == 'linux'
-        uses: bpicode/github-action-fpm@master
+        uses: fb929/github-action-fpm@master
         with:
           fpm_opts:
             --name ${{ github.event.repository.name }}
