@@ -59,6 +59,8 @@ else:
 app.logger.debug("cfg='%s'" % json.dumps(cfg,indent=4))
 # }}
 
+if cfg['listen']['debug']:
+    app.debug = True
 app.secret_key = secrets.token_urlsafe(16)
 bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
@@ -71,6 +73,7 @@ try:
 except Exception as e:
     app.logger.warning(f"failed connect to redis in cluster mode, retry in single mode, error={str(e)}")
     redisClient = redis.Redis(host=cfg['redis']['host'], port=cfg['redis']['port'])
+    cfg['redis']['url'] = 'redis://'+cfg['redis']['host']+':'+str(cfg['redis']['port'])
 
 @app.errorhandler(404)
 def page_not_found(e):
