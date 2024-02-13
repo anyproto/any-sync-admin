@@ -6,7 +6,7 @@ start:
 stop:
 	docker-compose stop
 clean:
-	docker system prune --all --volumes
+	docker system prune --all --volumes --force
 pull:
 	docker-compose pull
 cleanTmp:
