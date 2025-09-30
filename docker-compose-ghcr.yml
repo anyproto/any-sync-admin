@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   web:
     image: "ghcr.io/anyproto/any-sync-admin:${ANY_SYNC_ADMIN_VERSION}"
